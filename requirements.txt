@@ -1,6 +1,6 @@
-fitz
-Pillow
-pytesseract
-PyMuPDF
-Flask
-spacy
+Flask==3.1.2
+PyMuPDF==1.26.6
+pytesseract==0.3.13
+Pillow==12.0.0
+yake==0.5.0
+gunicorn==21.2.0
