@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliScan Pro - OCR & Smart Keyword Extractor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1>IntelliScan Pro</h1>
+            <p>Instantly extract text from images & PDFs • AI-powered keyword detection</p>
+        </div>
+    </div>
+
+    <div class="container main-content">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert error">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- FORM STARTS HERE — EVERYTHING INSIDE IT! -->
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="upload-card">
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" name="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg" required hidden>
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <p>Click to upload or drag & drop</p>
+                        <span class="file-types">PDF, PNG, JPG (Max 16MB)</span>
+                    </div>
+                </div>
+
+                <div class="options">
+                    <label class="radio-card">
+                        <input type="radio" name="file-type" value="image" checked>
+                        <span>Image</span>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="file-type" value="pdf">
+                        <span>PDF</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-primary" id="processBtn">
+                    <span id="btnText">Extract Text & Keywords</span>
+                    <span id="loadingText" style="display:none">
+                        Processing...
+                    </span>
+                </button>
+            </div>
+        </form>
+        <!-- FORM ENDS HERE -->
+
+        {% if extracted_text %}
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>Top Keywords</h3>
+                <div class="keywords-container">
+                    {% if extracted_keywords %}
+                        {% for kw in extracted_keywords %}
+                            <span class="keyword-tag">{{ kw }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty">No strong keywords detected</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="result-card full-width">
+                <div class="header">
+                    <h3>Extracted Text</h3>
+                    <button onclick="copyText()" class="btn-copy">
+                        Copy
+                    </button>
+                </div>
+                <pre id="extractedText">{{ extracted_text }}</pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 IntelliScan Pro • Powered by OCR + YAKE AI</p>
+        </div>
+    </footer>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); });
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('highlight'));
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('highlight'));
+        });
+
+        uploadArea.addEventListener('drop', e => {
+            const files = e.dataTransfer.files;
+            if (files.length) fileInput.files = files;
+        });
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        document.getElementById('uploadForm').onsubmit = function() {
+            document.getElementById('btnText').style.display = 'none';
+            document.getElementById('loadingText').style.display = 'inline-flex';
+            document.getElementById('processBtn').disabled = true;
+        };
+
+        function copyText() {
+            navigator.clipboard.writeText(document.getElementById('extractedText').innerText);
+            const btn = document.querySelector('.btn-copy');
+            btn.innerHTML = 'Copied!';
+            setTimeout(() => btn.innerHTML = 'Copy', 2000);
+        }
+    </script>
+</body>
+</html>
