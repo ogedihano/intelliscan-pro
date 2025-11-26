@@ -4,3 +4,4 @@ pytesseract
 Pillow
 yake
 gunicorn
+spacy
